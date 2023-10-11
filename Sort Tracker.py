@@ -172,25 +172,7 @@ def compare_tracks(dict1,dict2,dict3):
                   # print('this is the distance: ',distance)
                   if distance < bbox_distance_threshold:
                      dict2[key2] = dict1[key1]
-         
-         # for key2 in keys2:
-         #    for key3 in keys3:
-         #        if key2 == key3:
-         #          distance = math.dist(get_pt_from_box(dict1[key2]),get_pt_from_box(dict2[key2]))
-         #          if key2==27:
-         #             print("Keys1 and Keys3 have the same length: ",len(list(keys1))==len(list(keys3)))
-         #             print('pt1:', dict1[key2], 'pt2: ',dict2[key2])
-         #             print('distance between pt1 and pt2: ',distance)
-         #          if distance < bbox_distance_threshold:
-         #             if key2 == 27:
-         #                print('this pair of 27 TID is qualified')
-         #             x_old, y_old = get_pt_from_box(dict1[key2])
-         #             w,h = dict3[key3]
-         #             new_boxes[key2] = [x_old-w, y_old-h, x_old+w, y_old+h]
-                  
-         #        else:
-         #           new_boxes[key2] = dict2[key2]
-              
+   
                  
          for key2 in keys2:
             for key3 in keys3:
@@ -202,27 +184,8 @@ def compare_tracks(dict1,dict2,dict3):
                   new_boxes[key2] = dict2[key2]
               
    return new_boxes
-                     
                   
-         
-
-# video_path = r"C:\Users\balub\Downloads\Untitled video - Made with Clipchamp (4).mp4"
-# video_path = r"C:\Users\balub\Downloads\object_detection_left.mp4" # Starts with lot of detections
-# video_path = r"C:\Users\balub\Downloads\ANOTHER DEMO IPPHONE 6S - Made with Clipchamp.mp4"
-# video_path = r"C:\Users\balub\Downloads\ANOTHER DEMO IPPHONE 6S 0.1X - Made with Clipchamp.mp4"
 video_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\PUNCH VIDEO\sample punch.mp4"
-# video_path = r"C:\Users\balub\Downloads\bottom punch.mp4"
-# video_path = r"C:\Users\balub\Downloads\TOP PUNCH 0.4X - Made with Clipchamp.mp4"
-# video_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\PUNCH VIDEO\Slow motion - Made with Clipchamp.mp4"
-# video_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\PUNCH VIDEO\top punch.mp4"
-
-# output_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\OUTPUT\Inference-slow motion.mp4"
-# output_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\OUTPUT\Inference-sample punch.mp4"
-# output_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\OUTPUT\Inference-sample punch exp.mp4"
-output_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\OUTPUT\Inference-sample punch after thresh3.mp4"
-# output_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\OUTPUT\new inferences ANOTHER DEMO 13th punching bottom half.mp4"
-# output_path = r"C:\Users\balub\OneDrive\Desktop\DEEP SORT\OUTPUT\new inferences ANOTHER DEMO 13th punching top half.mp4"
-# output_path = r"C:\Users\balub\Downloads\new inferences2 with IDs.mp4"
 
 # Load the video
 video = cv2.VideoCapture(video_path)
@@ -254,7 +217,6 @@ while video.isOpened():
     predicted = detect.img(frame)
     data = predicted['instances']
     boxes=data.pred_boxes.tensor.tolist()
-    # print(boxes)
     classes=data.pred_classes.tolist()
     scores = data.scores.tolist()
     boxes_pred = [box for box in boxes if classes[boxes.index(box)]==1]
@@ -262,10 +224,6 @@ while video.isOpened():
 
     boxes_in_coco = [voc2coco(box) for box in boxes_pred]
     features = encoder(frame, boxes_in_coco)
-    # print('features: ',features)
-    # print(type(features))
-    # print(features.shape)
-    # print(len(boxes_pred))
     names = []
     for itera,box in enumerate(boxes_in_coco): 
       names.append('Screw')
@@ -274,18 +232,8 @@ while video.isOpened():
     detections = [Detection(bbox, score, class_name, feature) for bbox, score, class_name, feature in zip(boxes_in_coco, scores, names, features)]
     cmap = plt.get_cmap('tab20b')
     colors = [cmap(i)[:3] for i in np.linspace(0, 1, 20)]
-   #  boxs = np.array([d.tlwh for d in detections])
-   #  indices = preprocessing.non_max_suppression(boxs, classes, nms_max_overlap, scores)
-   #  detections = [detections[i] for i in indices]
     tracker.predict()
     tracker.update(detections)
-    # if i==73:
-    #    track_1 = tracker.tracks[0]
-    #    print(tracker.tracks)
-    #    print(track_1.to_tlbr())
-    #    print(track_1.get_class())
-    #    break
-   #  print('OD: ',len(names))
     
     # update tracks
     new_tracker = {}
@@ -306,25 +254,18 @@ while video.isOpened():
          new_tracker_boxes_after_modification=[]
 
     fps = 1.0 / (time.time() - start_time)
-   #  print('SORT: ',len(new_tracker.values()))
-   #  print("FPS: %.2f" % fps)
+
     # draw bbox on screen
     
     if len(initial_tracker.values())!=0 and len(new_tracker.values())!=0:
-      new_tracker_after_modification = compare_tracks(initial_tracker,new_tracker,tracker_with_dims)
-      print('initial_track: ',initial_tracker.keys())
-      print('new track before compare: ',new_tracker.keys())
-      print('new track after compaere', new_tracker_after_modification.keys())
-      # new_tracker_after_modification = make_detection(initial_tracker, new_tracker_after_modification)
+      new_tracker_after_modification = compare_tracks(initial_tracker,new_tracker,tracker_with_dims)   
       missing_IDs = [ID for ID in list(initial_tracker.keys()) if ID not in list(new_tracker_after_modification.keys())]
-      print('missing:',missing_IDs)
       new_tracker_after_modification, initial_tracker = multibox_correction(initial_tracker, new_tracker_after_modification)
 
       initial_tracker_IDs, new_tracker_after_modification_IDs = list(initial_tracker.keys()), list(new_tracker_after_modification.keys())
       difference = set(initial_tracker_IDs)- set(new_tracker_after_modification_IDs)
       if difference!={} and counter_var<counter_threshold:
          new_tracker_after_modification = make_detection(initial_tracker, new_tracker_after_modification, difference)
-         print('new track after compaere and make', new_tracker_after_modification.keys())
          counter_var += 1   
          if counter_var> counter_threshold:
             counter_var = 0
@@ -335,7 +276,6 @@ while video.isOpened():
       new_tracker_boxes_after_modification = list(new_tracker_after_modification.values())
       new_tracker_boxes_after_modification_IDs = list(new_tracker_after_modification.keys())
       new_tracker = new_tracker_after_modification
-      # print('initial tracker boxes: ',initial_tracker,'\n','new tracker boxes',new_tracker,'\n','after modification', new_tracker_after_modification)
       for id,bbox in zip(new_tracker_boxes_after_modification_IDs,new_tracker_boxes_after_modification):
         color = colors[int(track.track_id) % len(colors)]
         color = [i * 255 for i in color]

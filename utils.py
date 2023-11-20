@@ -105,7 +105,11 @@ def place_poster(image, poster, non_overlapping_mask, boxes):
     else:
         print('Poster not placed')
         result = result
-    return result
+        x_start, y_start = 0,0
+        poster_w = 0
+        poster_h = 0
+        
+    return result, [x_start, y_start, x_start + poster_w, y_start + poster_h]
 
 def get_bbox(pts):
     pts = np.array(pts)

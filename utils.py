@@ -29,12 +29,15 @@ def get_all_image_paths_with_xml(annotation_dir):
 def get_boxes_from_xml(annotation_path):
     json_data_dict = xml_to_json(annotation_path)
 
-    objects = json_data_dict['annotation']['object']
-    boxes = {}
-    for object in objects:
-        pts = [[int(pt['x']),int(pt['y'])] for pt in object['polygon']['pt']]
-        boxes[object['name']] = get_bbox(pts)
-    
+    try:
+        objects = json_data_dict['annotation']['object']
+        boxes = {}
+        for object in objects:
+            pts = [[int(pt['x']),int(pt['y'])] for pt in object['polygon']['pt']]
+            boxes[object['name']] = get_bbox(pts)
+    except:
+        boxes = {}
+        
     return boxes
 
 def iou(box1, box2):

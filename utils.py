@@ -99,7 +99,7 @@ def place_poster(image, poster, non_overlapping_mask, boxes):
 
       y_range, x_range = np.where(non_overlapping_mask == 255)
       if len(y_range) != 0 and len(x_range) != 0:
-        print('entered')
+        #print('entered')
         random_pixel = 0
         x_start = x_range[random_pixel]
         y_start = y_range[random_pixel]
@@ -121,15 +121,15 @@ def place_poster(image, poster, non_overlapping_mask, boxes):
                 if counter == 15:
                     break
         
-        print('number of resizes: ',counter)
+        #print('number of resizes: ',counter)
 
         if counter < 15:
-          print('entered')
+          #print('entered')
           status = 'Poster placed'
           result[y_start:y_start + poster_h, x_start:x_start + poster_w] = poster
         
         else:
-          print('entered')
+          #print('entered')
           status = 'Poster not placed'
           result = result
           x_start, y_start = 0,0

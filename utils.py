@@ -1,8 +1,8 @@
 import cv2, os, numpy as np
 import xmltodict, json, random
 
-def get_boxes_from_xml(annotation_path):
-    with open(annotation_path, 'r') as xml_file:
+def xml_to_json(xml_path):
+    with open(xml_path, 'r') as xml_file:
         xml_content = xml_file.read()
 
     xml_dict = xmltodict.parse(xml_content)
@@ -12,6 +12,22 @@ def get_boxes_from_xml(annotation_path):
 
     # Convert JSON string to dictionary
     json_data_dict = json.loads(json_data_str)
+
+    return json_data_dict
+
+def get_all_image_paths_with_xml(annotation_dir):
+    images_dir = annotation_dir.replace('Annotations', 'Images')
+    all_image_paths = []
+    for root, dirs, files in os.walk(annotation_dir):
+        for file in files:
+            if file.endswith('.xml'):
+                file_path = os.path.join(root, file)
+                image_path = file_path.replace('Annotations', 'Images').replace('.xml', '.jpg')
+                all_image_paths.append(image_path)
+    return all_image_paths
+
+def get_boxes_from_xml(annotation_path):
+    json_data_dict = xml_to_json(annotation_path)
 
     objects = json_data_dict['annotation']['object']
     boxes = {}
@@ -105,11 +121,7 @@ def place_poster(image, poster, non_overlapping_mask, boxes):
     else:
         print('Poster not placed')
         result = result
-        x_start, y_start = 0,0
-        poster_w = 0
-        poster_h = 0
-        
-    return result, [x_start, y_start, x_start + poster_w, y_start + poster_h]
+    return result
 
 def get_bbox(pts):
     pts = np.array(pts)

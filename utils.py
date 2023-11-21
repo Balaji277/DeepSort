@@ -90,7 +90,7 @@ def is_valid(x_start, y_start, poster_w, poster_h, w, h):
 
 def place_poster(image, poster, non_overlapping_mask, boxes):
     if len(boxes) == 0:
-        return image, [0,0,0,0]
+        return image, [0,0,0,0], 'No bounding boxes found'
     else:
 
         result = np.copy(image)

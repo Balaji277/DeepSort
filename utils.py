@@ -90,7 +90,7 @@ def place_poster(image, poster, non_overlapping_mask, boxes):
     h, w, _ = image.shape
     poster_h, poster_w, _ = poster.shape
 
-    x_range, y_range = np.where(non_overlapping_mask == 255)
+    y_range, x_range = np.where(non_overlapping_mask == 255)
     random_pixel = 0
     x_start = x_range[random_pixel]
     y_start = y_range[random_pixel]

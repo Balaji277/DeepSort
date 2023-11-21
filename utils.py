@@ -2,17 +2,21 @@ import cv2, os, numpy as np
 import xmltodict, json, random
 
 def xml_to_json(xml_path):
-    with open(xml_path, 'r') as xml_file:
-        xml_content = xml_file.read()
+    try:
+        with open(xml_path, 'r') as xml_file:
+            xml_content = xml_file.read()
 
-    xml_dict = xmltodict.parse(xml_content)
+        xml_dict = xmltodict.parse(xml_content)
 
-    # Convert OrderedDict to JSON string
-    json_data_str = json.dumps(xml_dict, indent=4)
+        # Convert OrderedDict to JSON string
+        json_data_str = json.dumps(xml_dict, indent=4)
 
-    # Convert JSON string to dictionary
-    json_data_dict = json.loads(json_data_str)
+        # Convert JSON string to dictionary
+        json_data_dict = json.loads(json_data_str)
 
+    except Exception as e:
+        json_data_dict = {}
+        print(e)
     return json_data_dict
 
 def get_all_image_paths_with_xml(annotation_dir):
@@ -27,6 +31,7 @@ def get_all_image_paths_with_xml(annotation_dir):
     return all_image_paths
 
 def get_boxes_from_xml(annotation_path):
+
     try:
         json_data_dict = xml_to_json(annotation_path)
         objects = json_data_dict['annotation']['object']
@@ -34,8 +39,9 @@ def get_boxes_from_xml(annotation_path):
         for object in objects:
             pts = [[int(pt['x']),int(pt['y'])] for pt in object['polygon']['pt']]
             boxes[object['name']] = get_bbox(pts)
-    except:
+    except Exception as exe:
         boxes = {}
+        print(exe)
 
     return boxes
 

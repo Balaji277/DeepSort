@@ -91,48 +91,54 @@ def is_valid(x_start, y_start, poster_w, poster_h, w, h):
 def place_poster(image, poster, non_overlapping_mask, boxes):
     if len(boxes) == 0:
         return image, [0,0,0,0], 'No bounding boxes found'
+    
     else:
+      result = np.copy(image)
+      h, w, _ = image.shape
+      poster_h, poster_w, _ = poster.shape
 
-        result = np.copy(image)
-        h, w, _ = image.shape
-        poster_h, poster_w, _ = poster.shape
+      y_range, x_range = np.where(non_overlapping_mask == 255)
+      if len(y_range) != 0 and len(x_range) != 0:
+          random_pixel = 0
+          x_start = x_range[random_pixel]
+          y_start = y_range[random_pixel]
+          poster_coords = [x_start, y_start, x_start + poster_w, y_start + poster_h]
+          counter = 0
+          while ((not is_valid(x_start, y_start, poster_w, poster_h, w, h)) or (is_intersecting(poster_coords, boxes))) and random_pixel < len(x_range):
+              
+                  random_pixel += 1
+                  x_start = x_range[random_pixel]
+                  y_start = y_range[random_pixel]
+                  poster_coords = [x_start, y_start, x_start + poster_w, y_start + poster_h]           
 
-        y_range, x_range = np.where(non_overlapping_mask == 255)
-        if len(y_range) != 0 and len(x_range) != 0:
-            random_pixel = 0
-            x_start = x_range[random_pixel]
-            y_start = y_range[random_pixel]
-            poster_coords = [x_start, y_start, x_start + poster_w, y_start + poster_h]
-            counter = 0
-            while ((not is_valid(x_start, y_start, poster_w, poster_h, w, h)) or (is_intersecting(poster_coords, boxes))) and random_pixel < len(x_range):
-                
-                    random_pixel += 1
-                    x_start = x_range[random_pixel]
-                    y_start = y_range[random_pixel]
-                    poster_coords = [x_start, y_start, x_start + poster_w, y_start + poster_h]           
+                  if random_pixel == len(x_range) - 1:
+                      poster_h, poster_w = int(poster_h*0.95), int(poster_w*0.95)
+                      poster = cv2.resize(poster, (poster_w, poster_h))
+                      random_pixel = 0
+                      counter += 1
+                  
+                  if counter == 15:
+                      break
+          
+          print('number of resizes: ',counter)
 
-                    if random_pixel == len(x_range) - 1:
-                        poster_h, poster_w = int(poster_h*0.95), int(poster_w*0.95)
-                        poster = cv2.resize(poster, (poster_w, poster_h))
-                        random_pixel = 0
-                        counter += 1
-                    
-                    if counter == 15:
-                        break
-            
-            print('number of resizes: ',counter)
-
-            if counter < 15:
-                status = 'Poster placed'
-                result[y_start:y_start + poster_h, x_start:x_start + poster_w] = poster
-        
-        else:
+          if counter < 15:
+              status = 'Poster placed'
+              result[y_start:y_start + poster_h, x_start:x_start + poster_w] = poster
+          
+          else:
             status = 'Poster not placed'
             result = result
             x_start, y_start = 0,0
             poster_w, poster_h = 0,0
+      
+      else:
+        status = 'Poster not placed'
+        result = result
+        x_start, y_start = 0,0
+        poster_w, poster_h = 0,0
 
-        return result, [x_start, y_start, x_start+poster_w, y_start+poster_h], status
+      return result, [x_start, y_start, x_start+poster_w, y_start+poster_h], status
 
 def get_bbox(pts):
     pts = np.array(pts)

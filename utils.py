@@ -3,7 +3,7 @@ import xmltodict, json, random
 
 def xml_to_json(xml_path):
     try:
-        with open(xml_path, 'r') as xml_file:
+        with open(xml_path, 'r', encoding='utf-8') as xml_file:
             xml_content = xml_file.read()
 
         xml_dict = xmltodict.parse(xml_content)

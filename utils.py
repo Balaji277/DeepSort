@@ -27,9 +27,8 @@ def get_all_image_paths_with_xml(annotation_dir):
     return all_image_paths
 
 def get_boxes_from_xml(annotation_path):
-    json_data_dict = xml_to_json(annotation_path)
-
     try:
+        json_data_dict = xml_to_json(annotation_path)
         objects = json_data_dict['annotation']['object']
         boxes = {}
         for object in objects:
